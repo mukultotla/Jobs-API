@@ -42,12 +42,12 @@ const register = async (req, res) => {
       password: hashedPassword,
     });
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.name);
 
     if (user) {
       res.status(StatusCodes.CREATED).json({
         msg: "User created successfully!",
-        data: user,
+        user: user.name,
         token,
       });
     }
@@ -60,14 +60,31 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  res.json({
-    msg: "Login controller",
-  });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new Error("Please enter email and password");
+    }
+    const user = await User.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      res.status(StatusCodes.OK).json({
+        token: generateToken(user._id, user.name),
+      });
+    } else {
+      throw new Error("Invaild credentials");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(StatusCodes.UNAUTHORIZED).json({
+      msg: error.message,
+    });
+  }
 };
 
 // Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (userId, name) => {
+  return jwt.sign({ userId, name }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
 };

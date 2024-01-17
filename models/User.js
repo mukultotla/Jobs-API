@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // Will do the schema validation using zod
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   name: {
     type: String,
   },
@@ -13,4 +13,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", UserSchema);
