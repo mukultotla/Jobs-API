@@ -1,10 +1,9 @@
-const { CustomAPIError } = require('../errors')
-const { StatusCodes } = require('http-status-codes')
 const errorHandlerMiddleware = (err, req, res, next) => {
-  if (err instanceof CustomAPIError) {
-    return res.status(err.statusCode).json({ msg: err.message })
-  }
-  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ err })
-}
+  const statusCode = res.statusCode ? res.statusCode : 500;
+  res.status(statusCode).json({
+    message: err.message,
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+  });
+};
 
-module.exports = errorHandlerMiddleware
+module.exports = errorHandlerMiddleware;
